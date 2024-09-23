@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacation Booking UI</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search by name or location">
+            <button class="search-button">Q</button>
+        </div>
+        
+        <div class="vacation-grid">
+            <div class="vacation-card">
+                <img src="/api/placeholder/250/150" alt="Phi Phi Islands" class="vacation-image">
+                <div class="vacation-info">
+                    <div class="vacation-title">Phi Phi Islands</div>
+                    <div class="vacation-location">Thailand</div>
+                    <div class="vacation-price">$1,480</div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-button">✏️</button>
+                    <button class="action-button">🗑️</button>
+                </div>
+            </div>
+            <!-- More vacation cards would be added here -->
+            <div class="vacation-card">
+                <img src="/api/placeholder/250/150" alt="Phi Phi Islands" class="vacation-image">
+                <div class="vacation-info">
+                    <div class="vacation-title">Phi Phi Islands</div>
+                    <div class="vacation-location">Thailand</div>
+                    <div class="vacation-price">$1,480</div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-button">✏️</button>
+                    <button class="action-button">🗑️</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="add-vacation">
+            <h2>Add a new vacation</h2>
+            <input type="text" placeholder="Name">
+            <input type="text" placeholder="Location">
+            <input type="text" placeholder="Price">
+            <input type="text" placeholder="Image url">
+            <button class="add-button">+</button>
+        </div>
+    </div>
+</body>
+</html>
