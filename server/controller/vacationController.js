@@ -16,8 +16,19 @@ async function addVacation(req, res) {
   }
 }
 
-
+async function fetchVacations(req, res) {
+  const selectQuery = `SELECT * FROM Ex6_vacation`;
+  
+  try {
+    const [vacations] = await dbPool.query(selectQuery);
+    res.status(200).send(vacations);
+  } catch (error) {
+    console.error("Error fetching vacations:", error);
+    res.status(500).send({ error: "Failed to fetch vacations." });
+  }
+}
 
 module.exports = {
-  addVacation
+  addVacation,
+  fetchVacations
 };
