@@ -38,6 +38,40 @@ async function deleteVacation(req, res) {
     }
   }
   
+  async function searchVacation(req, res) {
+    const { name, location } = req.query;
+  
+    // Validate that the parameters contain at least 3 characters
+    if ((name && name.length < 3) || (location && location.length < 3)) {
+      return res.status(400).send({ error: "Search parameters must contain at least 3 characters." });
+    }
+    
+    // Base query for searching vacations
+    let searchQuery = `SELECT * FROM Ex6_vacation WHERE 1=1`;
+    let queryParams = [];
+    
+    // Append search conditions based on the query parameters
+    if (name) {
+      searchQuery += ` AND LOWER(name) LIKE LOWER(?)`;
+      queryParams.push(`%${name.toLowerCase()}%`); // Convert the parameter to lowercase
+    }
+    if (location) {
+      searchQuery += ` AND LOWER(location) LIKE LOWER(?)`;
+      queryParams.push(`%${location.toLowerCase()}%`); // Convert the parameter to lowercase
+    }
+    
+    try {
+      const [results] = await dbPool.query(searchQuery, queryParams);
+      res.status(200).send(results);
+    } catch (error) {
+      console.error("Error searching vacations:", error);
+      res.status(500).send({ error: "Failed to search vacations." });
+    }
+  }
+  
+  
+  
+  
 
 async function editVacation(req, res) {
     const { id } = req.params; // Get the id from the URL params
@@ -77,8 +111,9 @@ async function fetchVacations(req, res) {
 }
 
 module.exports = {
-  addVacation,
-  fetchVacations,
-  deleteVacation,
-  editVacation
-};
+    addVacation,
+    fetchVacations,
+    editVacation,
+    deleteVacation,
+    searchVacation
+  };
