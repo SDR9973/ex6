@@ -29,21 +29,21 @@ async function fetchVacations(req, res) {
 }
 
 async function fetchVacationById(req, res) {
-  const { id } = req.params; 
 
+  const { id } = req.params;
   const selectQuery = `SELECT * FROM tbl_63_vacations WHERE id = ?`;
-  
+
   try {
-    const [vacations] = await dbPool.query(selectQuery, [id]);
+      const [result] = await dbPool.query(selectQuery, [id]);
 
-    if (vacations.length === 0) {
-      return res.status(404).send({ message: "Vacation not found." });
-    }
+      if (result.length === 0) {
+          return res.status(404).json({ error: 'Vacation not found' });
+      }
 
-    res.status(200).send(vacations[0]); 
+      res.status(200).json(result[0]);  // Return the vacation details as JSON
   } catch (error) {
-    console.error("Error fetching vacation by id:", error);
-    res.status(500).send({ error: "Failed to fetch vacation." });
+      console.error('Error fetching vacation:', error);
+      res.status(500).json({ error: 'Failed to fetch vacation' });
   }
 }
 
@@ -94,23 +94,18 @@ async function deleteVacation(req, res) {
 }
 
 async function searchVacation(req, res) {
-  const { name, location } = req.query;
+  const { query } = req.query;  // Expecting a single "query" parameter from the frontend
 
-  if ((name && name.length < 3) || (location && location.length < 3)) {
+  if (!query || query.length < 3) {
     return res.status(400).send({ error: "Search parameters must contain at least 3 characters." });
   }
   
-  let searchQuery = `SELECT * FROM tbl_63_vacations WHERE 1=1`;
-  let queryParams = [];
-  
-  if (name) {
-    searchQuery += ` AND LOWER(name) LIKE LOWER(?)`;
-    queryParams.push(`%${name.toLowerCase()}%`);
-  }
-  if (location) {
-    searchQuery += ` AND LOWER(location) LIKE LOWER(?)`;
-    queryParams.push(`%${location.toLowerCase()}%`);
-  }
+  const searchQuery = `
+    SELECT * FROM tbl_63_vacations 
+    WHERE LOWER(name) LIKE LOWER(?) 
+    OR LOWER(location) LIKE LOWER(?)
+  `;
+  const queryParams = [`%${query.toLowerCase()}%`, `%${query.toLowerCase()}%`];  // Use the same query for name and location
   
   try {
     const [results] = await dbPool.query(searchQuery, queryParams);
@@ -120,6 +115,7 @@ async function searchVacation(req, res) {
     res.status(500).send({ error: "Failed to search vacations." });
   }
 }
+
 
 module.exports = {
   addVacation,
