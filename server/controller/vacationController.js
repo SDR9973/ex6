@@ -40,7 +40,7 @@ async function fetchVacationById(req, res) {
           return res.status(404).json({ error: 'Vacation not found' });
       }
 
-      res.status(200).json(result[0]);  // Return the vacation details as JSON
+      res.status(200).json(result[0]); 
   } catch (error) {
       console.error('Error fetching vacation:', error);
       res.status(500).json({ error: 'Failed to fetch vacation' });
@@ -94,7 +94,7 @@ async function deleteVacation(req, res) {
 }
 
 async function searchVacation(req, res) {
-  const { query } = req.query;  // Expecting a single "query" parameter from the frontend
+  const { query } = req.query; 
 
   if (!query || query.length < 3) {
     return res.status(400).send({ error: "Search parameters must contain at least 3 characters." });
@@ -105,7 +105,7 @@ async function searchVacation(req, res) {
     WHERE LOWER(name) LIKE LOWER(?) 
     OR LOWER(location) LIKE LOWER(?)
   `;
-  const queryParams = [`%${query.toLowerCase()}%`, `%${query.toLowerCase()}%`];  // Use the same query for name and location
+  const queryParams = [`%${query.toLowerCase()}%`, `%${query.toLowerCase()}%`]; 
   
   try {
     const [results] = await dbPool.query(searchQuery, queryParams);
