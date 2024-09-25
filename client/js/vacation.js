@@ -22,7 +22,7 @@ const eventListeners = () => {
         resetForm(); 
     });
 
-    document.querySelector('.search-button').addEventListener('click', async () => {
+    document.querySelector('#search-icon-btn').addEventListener('click', async () => {
         const query = document.querySelector('.search-input').value;
         if (query) {
             await searchVacations(query);  
