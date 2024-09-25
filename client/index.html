@@ -4,51 +4,187 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vacation Booking UI</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .vacation-list {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            background-color: #44c767;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .vacation-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .vacation-card {
+            flex: 0 0 calc(50% - 10px);
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .vacation-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .container-vacation {
+            padding: 15px;
+            display: flex;
+           /* flex-direction: column;*/
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .vacation-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .vacation-title {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .vacation-location {
+            color: #666;
+        }
+
+        .vacation-price {
+            font-weight: bold;
+            
+            color: #44c767;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: -30px;
+
+        }
+
+        .action-button {
+            background-color: #44c767;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-vacation {
+            flex: 1;
+            margin-top:55px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #newVacationForm {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #newVacationForm input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .add-button {
+            background-color: #44c767;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .vacation-card {
+                flex: 0 0 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Search by name or location">
-            <button class="search-button">Q</button>
-        </div>
-        
-        <div class="vacation-grid">
-            <div class="vacation-card">
-                <img src="/api/placeholder/250/150" alt="Phi Phi Islands" class="vacation-image">
-                <div class="vacation-info">
-                    <div class="vacation-title">Phi Phi Islands</div>
-                    <div class="vacation-location">Thailand</div>
-                    <div class="vacation-price">$1,480</div>
-                </div>
-                <div class="action-buttons">
-                    <button class="action-button">✏️</button>
-                    <button class="action-button">🗑️</button>
-                </div>
+        <div class="vacation-list">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search by name or location">
+                <button class="search-button">Q</button>
             </div>
-            <!-- More vacation cards would be added here -->
-            <div class="vacation-card">
-                <img src="/api/placeholder/250/150" alt="Phi Phi Islands" class="vacation-image">
-                <div class="vacation-info">
-                    <div class="vacation-title">Phi Phi Islands</div>
-                    <div class="vacation-location">Thailand</div>
-                    <div class="vacation-price">$1,480</div>
-                </div>
-                <div class="action-buttons">
-                    <button class="action-button">✏️</button>
-                    <button class="action-button">🗑️</button>
-                </div>
+            <div class="vacation-grid" id="vacationgrid">
+                <!-- Vacation cards will be dynamically inserted here -->
             </div>
         </div>
-        
+
         <div class="add-vacation">
             <h2>Add a new vacation</h2>
-            <input type="text" placeholder="Name">
-            <input type="text" placeholder="Location">
-            <input type="text" placeholder="Price">
-            <input type="text" placeholder="Image url">
-            <button class="add-button">+</button>
+            <form id="newVacationForm">
+                <input type="hidden" id="vacationId" name="vacationId">
+                <input type="text" id="name" name="name" placeholder="Name" required>
+                <input type="text" id="location" name="location" placeholder="Location" required>
+                <input type="number" id="price" name="price" placeholder="Price" required>
+                <input type="text" id="imageUrl" name="imageUrl" placeholder="Image URL">
+                <button type="submit" class="add-button">+</button>
+            </form>
         </div>
     </div>
+
+    <script src="./js/vacation.js" defer></script>
 </body>
 </html>
