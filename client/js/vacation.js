@@ -42,6 +42,9 @@ const fetchVacations = async () => {
 
 const searchVacations = async (query) => {
     try {
+        if(query.length < 3) {
+            alert("You must type at least 3 characters!")
+        }
         const response = await fetch(`${url}/api/vacations/search?query=${encodeURIComponent(query)}`);  
         const vacations = await response.json();
         displayVacations(vacations);  
@@ -51,6 +54,7 @@ const searchVacations = async (query) => {
 };
 
 const displayVacations = (vacations) => {
+
     const vacationGrid = document.getElementById('vacationgrid');
     vacationGrid.innerHTML = '';  
 
@@ -61,16 +65,19 @@ const displayVacations = (vacations) => {
         vacationCard.innerHTML = `
             <img src="${vacation.image_url || '/api/placeholder/250/150'}" alt="${vacation.name}" class="vacation-image">
             <div class="container-vacation">
+                <div class="action-buttons">
+                    <button class="action-button" onclick="editVacation(${vacation.id})">✏️</button>
+                    <button class="action-button" onclick="deleteVacation(${vacation.id})">🗑️</button>
+                </div>
             <div class="vacation-info">
                 <div class="vacation-title">${vacation.name}</div>
-                <div class="vacation-location">${vacation.location}</div>
             
             </div>
-            <div>
-            <div class="action-buttons">
-                <button class="action-button" onclick="editVacation(${vacation.id})">✏️</button>
-                <button class="action-button" onclick="deleteVacation(${vacation.id})">🗑️</button>
-            </div>
+            <div style="display: flex; flex-direction: row; justify-content: space-between;">
+            <div class="location-container">
+                <div class="icon-location"></div>
+                <div class="vacation-location">${vacation.location}</div>
+            </div>    
             <div class="vacation-price">$${Number(vacation.price).toFixed(2)}</div>
             </div>
             </div>
@@ -94,7 +101,7 @@ const deleteVacation = async (id) => {
         }
 
         const result = await response.json();
-        console.log(result);  
+
 
         await fetchVacations();
     } catch (error) {
@@ -148,7 +155,7 @@ const updateVacation = async (event) => {
         });
 
         const data = await response.json();
-        console.log(data);  
+  
     } catch (error) {
         console.error('Error updating vacation:', error);
     }
@@ -181,7 +188,7 @@ const submitVacation = async (event) => {
         });
 
         const data = await response.json();
-        console.log(data);  
+
     } catch (error) {
         console.error('Error submitting vacation:', error);
     }
