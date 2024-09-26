@@ -1,19 +1,20 @@
 const url = 'https://ex6.onrender.com';
 const formBtns = document.querySelectorAll('.form-icons');
 const errCon = document.querySelector('#error');
-const bgForm = document.querySelector('#bgForm');
 const name = document.getElementById('name');
 const locationInp = document.getElementById('location');
 const price = document.getElementById('price');
 const imageUrl = document.getElementById('imageUrl');
 const searchBtn = document.querySelector('#search-icon-btn');
 const formContainer = document.querySelector('.form-container');
+const addVacationDiv = document.querySelector('.add-vacation');
 
 
 window.onload = async () => {
     try {
-        await fetchVacations();
+        addVacationDiv.classList.add('formBgImage');
         displayOnlyAddBtn()
+        await fetchVacations(); 
     } catch (error) {
         console.error('Error on load:', error);
     }
@@ -27,13 +28,13 @@ function displayOnlyAddBtn() {
 }
 
 
+
 const fetchVacations = async () => {
     try {
-        const response = await fetch(`${url}/api/vacations/fetchVacations`);
+        const response = await fetch(`${url}/api/vacations/fetchVacations`);  
         const vacations = await response.json();
         displayVacations(vacations);
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error fetching vacations:', error);
     }
 };
@@ -43,7 +44,7 @@ const searchVacations = async (query) => {
         if (query.length < 3) {
             alert("You must type at least 3 characters!")
         }
-        const response = await fetch(`${url}/api/vacations/search?query=${encodeURIComponent(query)}`);
+        const response = await fetch(`${ url }/api/vacations/search?query=${ encodeURIComponent(query) }`);
         const vacations = await response.json();
         displayVacations(vacations);
     } catch (error) {
@@ -97,17 +98,17 @@ const deleteVacation = async (id) => {
             method: 'DELETE',
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to delete vacation');
-        }
-
-        const result = await response.json();
-
-
-        await fetchVacations();
-    } catch (error) {
-        console.error('Error deleting vacation:', error);
+    if (!response.ok) {
+        throw new Error('Failed to delete vacation');
     }
+
+    const result = await response.json();
+
+
+    await fetchVacations();
+} catch (error) {
+    console.error('Error deleting vacation:', error);
+}
 };
 
 const borderDivInEditAction = (id) => {
@@ -126,16 +127,15 @@ const cancelBorderDiv = () => {
 const putValueWhenEditAction = async (id) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log("object")
     try {
         document.getElementById('formHeader').innerHTML = 'Edit a vacation';
-        bgForm.classList.add('hide');
+        addVacationDiv.classList.remove('formBgImage');
         formBtns.forEach(function (el) {
             el.classList.remove('hide')
             if (el.id === "add-button") el.classList.add('hide')
         });
         borderDivInEditAction(id);
-        const response = await fetch(`${url}/api/vacations/vacation/${id}`);
+        const response = await fetch(`${url}/api/vacations/vacation/${ id }`);
         if (!response.ok) {
             throw new Error('Failed to fetch vacation details');
         }
@@ -153,11 +153,12 @@ const putValueWhenEditAction = async (id) => {
     }
 };
 
+
 const updateVacation = async (event) => {
     event.preventDefault();
     event.stopPropagation();
     try {
-
+        addVacationDiv.classList.add('formBgImage');
         const id = document.getElementById('vacationId').value;
         const nameVal = name.value;
         const priceVal = Number(price.value);
@@ -186,12 +187,12 @@ const updateVacation = async (event) => {
         errCon.style.backgroundColor = 'red';
         errCon.innerHTML = error;
     }
-
 }
+
 const goBack = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    bgForm.classList.remove('hide');
+    addVacationDiv.classList.add('formBgImage');
     formBtns.forEach(function (el) {
         el.classList.remove('hide');
         if (el.id !== "add-button") el.classList.add('hide');
@@ -209,7 +210,7 @@ const submitVacation = async (event) => {
         const priceVal = price.value;
         const locationVal = locationInp.value;
         const imageUrlVal = imageUrl.value || '/api/placeholder/250/150';
-        console.log(nameVal, priceVal, locationVal, imageUrlVal)
+
         validateVacation(nameVal, priceVal, locationVal, imageUrlVal)
 
         const vacation = {
@@ -218,14 +219,14 @@ const submitVacation = async (event) => {
             location: locationVal,
             imageUrl: imageUrlVal,
         };
-
-        const response = await fetch(`${url}/api/vacations/create`, {
+        const response = await fetch(`${url}/api/vacations/create`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(vacation)
         });
+
 
     } catch (error) {
         console.error('Error submitting vacation:', error);
@@ -242,7 +243,9 @@ const resetForm = () => {
 
 const validateVacation = (nameVal, priceVal, locationVal, imageUrlVal) => {
     if (!nameVal || !locationVal || !price || !imageUrl) throw new Error("please fill all required fields");
-    let isContainsNumbers = locationVal.split('').some(char => !isNaN(char));
+    let isContainsNumbers = nameVal.split('').some(char => !isNaN(char));
+    if (isContainsNumbers) throw new Error("Name cannot contain numbers");
+    isContainsNumbers = locationVal.split('').some(char => !isNaN(char));
     if (isContainsNumbers) throw new Error("Location cannot contain numbers");
     let subOfImgUrl = imageUrlVal.substr(0, 4);
     if (subOfImgUrl !== "http") throw new Error("please enter a valid url");
