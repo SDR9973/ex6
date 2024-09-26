@@ -1,53 +1,51 @@
-const url = 'http://localhost:5001';
-let isEditing = false;  
+const url = 'https://ex6.onrender.com';
+const formBtns = document.querySelectorAll('.form-icons');
+const errCon = document.querySelector('#error');
+const bgForm = document.querySelector('#bgForm');
+const name = document.getElementById('name');
+const locationInp = document.getElementById('location');
+const price = document.getElementById('price');
+const imageUrl = document.getElementById('imageUrl');
+const searchBtn = document.querySelector('#search-icon-btn');
+const formContainer = document.querySelector('.form-container');
+
 
 window.onload = async () => {
     try {
-        eventListeners();
-        await fetchVacations();  
+        await fetchVacations();
+        displayOnlyAddBtn()
     } catch (error) {
         console.error('Error on load:', error);
     }
 };
 
-const eventListeners = () => {
-    document.getElementById('newVacationForm').addEventListener('submit', async (event) => {
-        event.preventDefault();  
-        if (isEditing) {
-            await updateVacation(event);  
-        } else {
-            await submitVacation(event);  
-        }
-        await fetchVacations();  
-        resetForm(); 
-    });
+function displayOnlyAddBtn() {
+    formBtns.forEach(function (el) {
+        if (el.id !== "add-button") el.classList.add('hide');
+    })
 
-    document.querySelector('#search-icon-btn').addEventListener('click', async () => {
-        const query = document.querySelector('.search-input').value;
-        if (query) {
-            await searchVacations(query);  
-        }
-    });
-};
+}
+
 
 const fetchVacations = async () => {
     try {
-        const response = await fetch(`${url}/api/vacations/fetchVacations`);  
+        const response = await fetch(`${url}/api/vacations/fetchVacations`);
         const vacations = await response.json();
         displayVacations(vacations);
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error fetching vacations:', error);
     }
 };
 
 const searchVacations = async (query) => {
     try {
-        if(query.length < 3) {
+        if (query.length < 3) {
             alert("You must type at least 3 characters!")
         }
-        const response = await fetch(`${url}/api/vacations/search?query=${encodeURIComponent(query)}`);  
+        const response = await fetch(`${url}/api/vacations/search?query=${encodeURIComponent(query)}`);
         const vacations = await response.json();
-        displayVacations(vacations);  
+        displayVacations(vacations);
     } catch (error) {
         console.error('Error searching vacations:', error);
     }
@@ -56,18 +54,19 @@ const searchVacations = async (query) => {
 const displayVacations = (vacations) => {
 
     const vacationGrid = document.getElementById('vacationgrid');
-    vacationGrid.innerHTML = '';  
+    vacationGrid.innerHTML = '';
 
     vacations.forEach(vacation => {
         const vacationCard = document.createElement('div');
         vacationCard.classList.add('vacation-card');
-
+        vacationCard.id = vacation.id;
         vacationCard.innerHTML = `
             <img src="${vacation.image_url || '/api/placeholder/250/150'}" alt="${vacation.name}" class="vacation-image">
             <div class="container-vacation">
                 <div class="action-buttons">
-                    <button class="action-button" onclick="editVacation(${vacation.id})">✏️</button>
-                    <button class="action-button" onclick="deleteVacation(${vacation.id})">🗑️</button>
+                    <div id="edit-icon-btn" onclick="putValueWhenEditAction(${vacation.id})"></div>
+                    <div id="delete-icon-btn" onclick="deleteVacation(${vacation.id})"></div>
+
                 </div>
             <div class="vacation-info">
                 <div class="vacation-title">${vacation.name}</div>
@@ -88,9 +87,11 @@ const displayVacations = (vacations) => {
 };
 
 const deleteVacation = async (id) => {
+    event.preventDefault();
+    event.stopPropagation();
     try {
         const confirmed = confirm('Are you sure you want to delete this vacation?');
-        if (!confirmed) return;  
+        if (!confirmed) return;
 
         const response = await fetch(`${url}/api/vacations/delete/${id}`, {
             method: 'DELETE',
@@ -109,43 +110,67 @@ const deleteVacation = async (id) => {
     }
 };
 
-const editVacation = async (id) => {
+const borderDivInEditAction = (id) => {
+    document.querySelectorAll('.vacation-card').forEach(el => {
+        if (el.id == id) el.classList.add('border-card');
+        console.log(el.id, id);
+    })
+};
+const cancelBorderDiv = () => {
+    document.querySelectorAll('.vacation-card').forEach(el => {
+        el.classList.remove('border-card');
+    })
+};
+
+
+const putValueWhenEditAction = async (id) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("object")
     try {
+        document.getElementById('formHeader').innerHTML = 'Edit a vacation';
+        bgForm.classList.add('hide');
+        formBtns.forEach(function (el) {
+            el.classList.remove('hide')
+            if (el.id === "add-button") el.classList.add('hide')
+        });
+        borderDivInEditAction(id);
         const response = await fetch(`${url}/api/vacations/vacation/${id}`);
         if (!response.ok) {
-            throw new Error('Failed to fetch vacation details');  
+            throw new Error('Failed to fetch vacation details');
         }
-        const vacation = await response.json();  
+
+        const vacation = await response.json();
 
         document.getElementById('vacationId').value = vacation.id;
-        document.getElementById('name').value = vacation.name;
-        document.getElementById('location').value = vacation.location;
-        document.getElementById('price').value = vacation.price;
-        document.getElementById('imageUrl').value = vacation.image_url;
+        name.value = vacation.name;
+        locationInp.value = vacation.location;
+        price.value = vacation.price;
+        imageUrl.value = vacation.image_url;
 
-        isEditing = true; 
-        document.querySelector('.add-button').textContent = 'Update';  
     } catch (error) {
         console.error('Error fetching vacation details:', error);
     }
 };
 
 const updateVacation = async (event) => {
-    const formData = new FormData(event.target);
-    const id = formData.get('vacationId');  
-    const name = formData.get('name');
-    const price = Number(formData.get('price'));
-    const location = formData.get('location');
-    const imageUrl = formData.get('imageUrl') || '/api/placeholder/250/150';  
-
-    const vacation = {
-        name: name,
-        price: price,
-        location: location,
-        imageUrl: imageUrl,
-    };
-
+    event.preventDefault();
+    event.stopPropagation();
     try {
+
+        const id = document.getElementById('vacationId').value;
+        const nameVal = name.value;
+        const priceVal = Number(price.value);
+        const locationVal = locationInp.value;
+        const imageUrlVal = imageUrl.value || '/api/placeholder/250/150';
+        validateVacation(nameVal, priceVal, locationVal, imageUrlVal)
+
+        const vacation = {
+            name: nameVal,
+            price: priceVal,
+            location: locationVal,
+            imageUrl: imageUrlVal,
+        };
         const response = await fetch(`${url}/api/vacations/edit/${id}`, {
             method: 'PUT',
             headers: {
@@ -154,31 +179,46 @@ const updateVacation = async (event) => {
             body: JSON.stringify(vacation)
         });
 
-        const data = await response.json();
-  
+        cancelBorderDiv()
     } catch (error) {
         console.error('Error updating vacation:', error);
+        errCon.classList.remove('hide');
+        errCon.style.backgroundColor = 'red';
+        errCon.innerHTML = error;
     }
 
-    isEditing = false;  
-    document.querySelector('.add-button').textContent = '+';  
-};
+}
+const goBack = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    bgForm.classList.remove('hide');
+    formBtns.forEach(function (el) {
+        el.classList.remove('hide');
+        if (el.id !== "add-button") el.classList.add('hide');
+    })
+    resetForm();
+    errCon.classList.add('hide');
+    cancelBorderDiv()
+}
 
 const submitVacation = async (event) => {
-    const formData = new FormData(event.target);
-    const name = formData.get('name');
-    const price = Number(formData.get('price'));
-    const location = formData.get('location');
-    const imageUrl = formData.get('imageUrl') || '/api/placeholder/250/150'; 
-
-    const vacation = {
-        name: name,
-        price: price,
-        location: location,
-        imageUrl: imageUrl,
-    };
-
+    event.preventDefault();
+    event.stopPropagation();
     try {
+        const nameVal = name.value;
+        const priceVal = price.value;
+        const locationVal = locationInp.value;
+        const imageUrlVal = imageUrl.value || '/api/placeholder/250/150';
+        console.log(nameVal, priceVal, locationVal, imageUrlVal)
+        validateVacation(nameVal, priceVal, locationVal, imageUrlVal)
+
+        const vacation = {
+            name: nameVal,
+            price: Number(priceVal),
+            location: locationVal,
+            imageUrl: imageUrlVal,
+        };
+
         const response = await fetch(`${url}/api/vacations/create`, {
             method: 'POST',
             headers: {
@@ -187,16 +227,51 @@ const submitVacation = async (event) => {
             body: JSON.stringify(vacation)
         });
 
-        const data = await response.json();
-
     } catch (error) {
         console.error('Error submitting vacation:', error);
+        errCon.classList.remove('hide');
+        errCon.innerHTML = error;
+        errCon.style.backgroundColor = 'red';
     }
 };
 
 const resetForm = () => {
     document.getElementById('newVacationForm').reset();
     document.getElementById('vacationId').value = '';
-    isEditing = false;
-    document.querySelector('.add-button').textContent = '+';  
 };
+
+const validateVacation = (nameVal, priceVal, locationVal, imageUrlVal) => {
+    if (!nameVal || !locationVal || !price || !imageUrl) throw new Error("please fill all required fields");
+    let isContainsNumbers = locationVal.split('').some(char => !isNaN(char));
+    if (isContainsNumbers) throw new Error("Location cannot contain numbers");
+    let subOfImgUrl = imageUrlVal.substr(0, 4);
+    if (subOfImgUrl !== "http") throw new Error("please enter a valid url");
+    let isContainsChar = priceVal.split('').some(char => isNaN(char));
+    if (isContainsChar) throw new Error("Price can contain only numbers");
+    if (!priceVal) throw new Error("price must be more than zero");
+};
+
+
+formBtns.forEach(function (el) {
+    if (el.id === "add-button") el.addEventListener("click", submitVacation);
+    if (el.id === "save-button") el.addEventListener("click", updateVacation);
+    if (el.id === "goBack-button") el.addEventListener("click", goBack);
+});
+
+formContainer.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+});
+
+searchBtn.addEventListener('click', async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const query = document.querySelector('.search-input').value;
+    if (query) {
+        await searchVacations(query);
+    }
+});
+
+document.addEventListener('click', () => {
+    errCon.classList.add('hide');
+});
