@@ -190,6 +190,7 @@ const updateVacation = async (event) => {
 }
 
 const goBack = (event) => {
+    document.getElementById('formHeader').innerHTML = "Add a new vacation"
     event.preventDefault();
     event.stopPropagation();
     addVacationDiv.classList.add('formBgImage');
@@ -203,6 +204,7 @@ const goBack = (event) => {
 }
 
 const submitVacation = async (event) => {
+    document.getElementById('formHeader').innerHTML = "Add a new vacation"
     event.preventDefault();
     event.stopPropagation();
     try {
